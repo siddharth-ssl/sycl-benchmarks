@@ -14,7 +14,7 @@ grid<block,T,D>::grid(std::size_t* t_block_size, std::size_t* t_grid_size, std::
     m_nby = t_grid_size[1];
     m_nbz = t_grid_size[2];
 
-    m_block = block(t_block_size, t_pad_size);
+    m_block = new block(t_block_size, t_pad_size);
     
 }
 
@@ -27,7 +27,7 @@ grid<block,T,D>::bindx (std::size_t bx, std::size_t by, std::size_t bz)
 
 template<class block, typename T, std::size_t D>
 void 
-grid<block,T,D>::allocate()
+grid<block,T,D>::allocate(sycl::queue& q)
 {
     for(auto bz=0; bz<m_nbz; bz++)
     {
@@ -37,7 +37,7 @@ grid<block,T,D>::allocate()
             {
                 const auto& t_bindx = bindx(bx, by, bz);
                 //block t_b = block(t_block_size, t_pad_size);
-                m_block.set_bidx(t_bindx);
+                (*m_block).set_bidx(t_bindx);
 
                 const auto& t_bx = bx;
                 const auto& t_by = by;
@@ -45,10 +45,10 @@ grid<block,T,D>::allocate()
 
                 const auto t_nn_list = nn_blocks<D>::get_nn_blocks(t_bx,t_by,t_bz);
                 //std::cout << t_bindx << " " <<  t_nn_list[1] << std::endl;
-                m_block.set_nn_blocks(t_nn_list);
-                m_block.allocate();
+                (*m_block).set_nn_blocks(t_nn_list);
+                (*m_block).allocate(q);
                 //m_block_list[t_bindx] = std::make_pair(t_bindx, m_block);
-                m_block_list.push_back(std::make_pair(t_bindx, m_block  ));
+                m_block_list.push_back(std::make_pair(t_bindx, m_block ));
                 //m_block_list.insert(std::pair<std::size_t, block>(t_bindx, m_block));
             }
         }
@@ -60,14 +60,14 @@ template<class block, typename T, std::size_t D>
 std::vector<std::size_t> 
 grid<block,T,D>::get_block_size() const 
 {
-    return m_block_list[0].second.get_block_size();
+    return (*m_block_list[0].second).get_block_size();
 }
 
 template<class block, typename T, std::size_t D> 
 std::vector<std::size_t> 
 grid<block,T,D>::get_block_size_padded() const 
 {
-    return m_block_list[0].second.get_block_size_padded();
+    return (*m_block_list[0].second).get_block_size_padded();
 }
 
 template<class block, typename T, std::size_t D>
@@ -89,7 +89,7 @@ grid<block,T,D>::fill(const T &t_val)
 {
     for(auto bpair : m_block_list)
     {
-        bpair.second.fill(t_val);
+        (*bpair.second).fill(t_val);
     }
 }
 
@@ -99,27 +99,27 @@ grid<block,T,D>::fill_padded(const T &t_val)
 {
     for(auto bpair : m_block_list)
     {
-        bpair.second.fill_padded(t_val);
+        (*bpair.second).fill_padded(t_val);
     }
 }
 
 template<class block, typename T, std::size_t D>
 void 
-grid<block,T,D>::copy_from_host_to_device()
+grid<block,T,D>::copy_from_host_to_device(sycl::queue& q)
 {
     for(auto bpair : m_block_list)
     {
-        bpair.second.copy_from_host_to_device();
+        (*bpair.second).copy_from_host_to_device(q);
     }
 }
 
 template<class block, typename T, std::size_t D>
 void 
-grid<block,T,D>::copy_from_device_to_host()
+grid<block,T,D>::copy_from_device_to_host(sycl::queue& q)
 {
     for(auto bpair : m_block_list)
     {
-        bpair.second.copy_from_device_to_host();
+        (*bpair.second).copy_from_device_to_host(q);
     }
 }
 
@@ -127,14 +127,14 @@ template<class block, typename T, std::size_t D>
 block  
 grid<block,T,D>::at(std::size_t x, std::size_t y, std::size_t z)
 {
-    return m_block_list.at(bindx(x,y,z)).second;
+    return (*m_block_list.at(bindx(x,y,z)).second);
 }
 
 template<class block, typename T, std::size_t D>
 block  
 grid<block,T,D>::at(std::size_t t_idx)
 {
-    return m_block_list[t_idx].second;
+    return (*m_block_list[t_idx].second);
 }
 
 
@@ -161,7 +161,7 @@ grid<block,T,D>::size_of()
 
 
 template<class block, typename T, std::size_t D>
-std::vector<std::pair<std::size_t, block>> 
+std::vector<std::pair<std::size_t, block*>> 
 grid<block,T,D>::get_blocks()
 {
     return m_block_list;
@@ -173,7 +173,7 @@ grid<block,T,D>::communic_nn_blocks()
 {
     for(auto bpair : m_block_list)
     {
-        auto t_b = bpair.second;
+        auto t_b = (*bpair.second);
         auto t_nn_list = t_b.get_nn_blocks();
 
         t_b.fill_boundary_px(at(t_nn_list[0]));

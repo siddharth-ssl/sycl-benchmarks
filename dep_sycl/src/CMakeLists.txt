@@ -1,4 +1,4 @@
-add_library(lib_dep STATIC block.cu grid.cpp nn_blocks.cpp cuda_kernels.cu)
+add_library(lib_dep STATIC block.cpp grid.cpp nn_blocks.cpp cuda_kernels.cpp)
 set_target_properties (lib_dep
   PROPERTIES
   POSITION_INDEPENDENT_CODE ON

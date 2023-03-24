@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <sycl/sycl.hpp>
+#include <dpct/dpct.hpp>
+#include <dpc_common.hpp>
 
 template<typename T, std::size_t D>
 class block
@@ -21,6 +24,13 @@ protected:
     std::vector<std::size_t> m_nn_list = std::vector<std::size_t>(6);
     T* m_data;
     T* m_device_data;
+
+    //dpct::device_ext &dev_ct = dpct::get_current_device();
+    //sycl::default_selector d_selector;
+    //sycl::device d = sycl::device(d_selector);
+    //sycl::property_list properties{ sycl::property::queue::in_order() };
+    //sycl::queue q_ct(sycl::default_selector_v, dpc_common::exception_handler, properties);
+    //sycl::queue &q_ct = dev_ct.default_queue();
 
 public:
     block ();
@@ -49,13 +59,13 @@ public:
     // void allocate();
 
     void 
-    allocate();
+    allocate(sycl::queue& q);
 
     void 
-    copy_from_device_to_host();
+    copy_from_device_to_host(sycl::queue& q);
 
     void 
-    copy_from_host_to_device();
+    copy_from_host_to_device(sycl::queue& q);
 
     void 
     fill_boundary_px(const block<T,D> &t_block);
@@ -103,7 +113,7 @@ public:
     size_of();
 
     void 
-    dealloc();
+    dealloc(sycl::queue& q);
 
     void 
     set_bidx(const std::size_t t_bidx);

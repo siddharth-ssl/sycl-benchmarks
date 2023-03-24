@@ -2,6 +2,7 @@
 #include <block.hpp>
 #include <nn_blocks.hpp>
 #include <iostream>
+#include <sycl/sycl.hpp>
 #include <array>
 #include <vector>
 #include <map>
@@ -18,8 +19,8 @@ private:
     std::size_t m_nby;
     std::size_t m_nbz;
     
-    block m_block;
-    std::vector<std::pair<std::size_t,block>> m_block_list;
+    block* m_block;
+    std::vector<std::pair<std::size_t,block*>> m_block_list;
     //std::map<std::size_t,block> m_block_list;
 
     T* m_data_host;
@@ -34,13 +35,13 @@ public:
     bindx (std::size_t bx, std::size_t by, std::size_t bz);
     
     void 
-    allocate();
+    allocate(sycl::queue& q);
 
     void 
-    copy_from_host_to_device();
+    copy_from_host_to_device(sycl::queue& q);
 
     void 
-    copy_from_device_to_host();
+    copy_from_device_to_host(sycl::queue& q);
     
     std::vector<std::size_t> 
     get_block_size() const;
@@ -69,7 +70,7 @@ public:
     std::pair<std::size_t, std::size_t>  
     size_of();
 
-    std::vector<std::pair<std::size_t,block>> 
+    std::vector<std::pair<std::size_t,block*>> 
     get_blocks();
 
     void 

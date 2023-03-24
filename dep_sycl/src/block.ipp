@@ -96,27 +96,30 @@ block<T,D>::get_nn_blocks()
 
 template<typename T, std::size_t D>
 void 
-block<T,D>::allocate()
+block<T,D>::allocate(sycl::queue& q_ct)
 {
     std::size_t alloc_bytes = m_block_size_padded[0] * m_block_size_padded[1] * m_block_size_padded[2] * sizeof(T);
     //m_data = m_data + m_bidx * alloc_bytes;
     m_data = (T*)malloc(alloc_bytes);
-    cudaMalloc((void**)&m_device_data, alloc_bytes);
+    //cudaMalloc((void**)&m_device_data, alloc_bytes);
+    m_device_data = (T*)sycl::malloc_device(alloc_bytes, q_ct);
     //m_data = new T[m_block_size_padded[0] * m_block_size_padded[1] * m_block_size_padded[2]];
 }
 
 template<typename T, std::size_t D>
 void 
-block<T,D>::copy_from_host_to_device()
+block<T,D>::copy_from_host_to_device(sycl::queue& q_ct)
 {
-    cudaMemcpy(m_device_data, m_data, size_of().second, cudaMemcpyHostToDevice);
+    //cudaMemcpy(m_device_data, m_data, size_of().second, cudaMemcpyHostToDevice);
+    q_ct.memcpy(m_device_data, m_data, size_of().second).wait();
 }
 
 template<typename T, std::size_t D>
 void 
-block<T,D>::copy_from_device_to_host()
+block<T,D>::copy_from_device_to_host(sycl::queue& q_ct)
 {
-    cudaMemcpy(m_data, m_device_data, size_of().second, cudaMemcpyDeviceToHost);
+    //cudaMemcpy(m_data, m_device_data, size_of().second, cudaMemcpyDeviceToHost);
+    q_ct.memcpy(m_data, m_device_data, size_of().second).wait();
 }
 
 
@@ -329,11 +332,12 @@ block<T,D>::size_of()
 
 template<typename T, std::size_t D>
 void 
-block<T,D>::dealloc()
+block<T,D>::dealloc(sycl::queue& q_ct)
 {
     //m_data = nullptr;
     free(m_data);
     //delete m_data;
+    sycl::free(m_device_data, q_ct);
 }
 template<typename T, std::size_t D>
 block<T,D>::~block()

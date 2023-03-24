@@ -1,8 +1,12 @@
 #include "block.ipp"
 
 template
-block<double,3>::block();
+class block<double,2>;
 
+template 
+class block<double,3>;
+
+/*
 template
 block<double,3>::block(std::size_t* t_block_size, 
                   std::size_t* t_pad_size);
@@ -121,7 +125,7 @@ block<double,3>::set_nn_blocks(const std::vector<std::size_t>& t_nn_list);
 template 
 std::vector<std::size_t> 
 block<double,3>::get_nn_blocks();
-
+*/
 /*
 int main(int argc, char** argv)
 {

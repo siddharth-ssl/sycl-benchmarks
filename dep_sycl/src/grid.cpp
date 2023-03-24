@@ -17,15 +17,15 @@ grid<block<double,3>,double,3>::bindx (std::size_t bx, std::size_t by, std::size
 
 template
 void 
-grid<block<double,3>,double,3>::allocate();
+grid<block<double,3>,double,3>::allocate(sycl::queue& q);
 
 template 
 void 
-grid<block<double,3>,double,3>::copy_from_host_to_device();
+grid<block<double,3>,double,3>::copy_from_host_to_device(sycl::queue& q);
 
 template 
 void 
-grid<block<double,3>,double,3>::copy_from_device_to_host();
+grid<block<double,3>,double,3>::copy_from_device_to_host(sycl::queue& q);
 
 template
 std::vector<std::size_t> 
@@ -65,7 +65,7 @@ std::pair<std::size_t, std::size_t>
 grid<block<double,3>,double,3>::size_of();
 
 template 
-std::vector<std::pair<std::size_t, block<double,3>>> 
+std::vector<std::pair<std::size_t, block<double,3>*>> 
 grid<block<double,3>,double,3>::get_blocks();
 
 template 
