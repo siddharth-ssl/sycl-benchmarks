@@ -41,8 +41,7 @@ operations_device(std::size_t npx,
             std::size_t zmax, 
             double* device_data_1, 
             double* device_data_2, 
-            sycl::nd_item<3> item_ct,
-            sycl::stream h);
+            sycl::nd_item<3> item_ct);
 
 template
 void 

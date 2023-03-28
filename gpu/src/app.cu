@@ -76,13 +76,13 @@ int main(int argc, char** argv)
         cuda_grid_2.communic_nn_blocks();
         cuda_grid_1.copy_from_host_to_device();
         cuda_grid_2.copy_from_host_to_device();
-        std::cout << "The cuda resuls = " <<  cuda_grid_1.at(10)(1,2,4) << std::endl;
+        std::cout << "The cuda resuls = " <<  cuda_grid_1.at(0)(1,2,4) << std::endl;
     }
 
     auto stop      = std::chrono::high_resolution_clock::now();
     auto duration  = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-    std::cout << "The cuda resuls = " <<  cuda_grid_1.at(10)(1,2,4) << " in a time of " << duration.count()/(1e6*itr) << " sec" << std::endl;
+    std::cout << "The cuda resuls = " <<  cuda_grid_1.at(0)(1,2,4) << " in a time of " << duration.count()/(1e6*itr) << " sec" << std::endl;
 
     for(auto bpair : cuda_grid_1.get_blocks())
     {

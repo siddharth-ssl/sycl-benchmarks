@@ -1,7 +1,7 @@
 #include "block.ipp"
 
-template
-class block<double,2>;
+//template
+//class block<double,2>;
 
 template 
 class block<double,3>;

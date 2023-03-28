@@ -102,7 +102,7 @@ block<T,D>::allocate(sycl::queue& q_ct)
     //m_data = m_data + m_bidx * alloc_bytes;
     m_data = (T*)malloc(alloc_bytes);
     //cudaMalloc((void**)&m_device_data, alloc_bytes);
-    m_device_data = (T*)sycl::malloc_device(alloc_bytes, q_ct);
+    m_device_data = (T*)sycl::malloc_device (alloc_bytes, q_ct);
     //m_data = new T[m_block_size_padded[0] * m_block_size_padded[1] * m_block_size_padded[2]];
 }
 

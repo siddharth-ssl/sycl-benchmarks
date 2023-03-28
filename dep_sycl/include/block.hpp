@@ -2,8 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <sycl/sycl.hpp>
-#include <dpct/dpct.hpp>
-#include <dpc_common.hpp>
+//#include <dpct/dpct.hpp>
+//#include <dpc_common.hpp>
 
 template<typename T, std::size_t D>
 class block
