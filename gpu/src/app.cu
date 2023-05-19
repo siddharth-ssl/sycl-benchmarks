@@ -11,8 +11,8 @@ int main(int argc, char** argv)
 {
     std::size_t itr = 100;
     /// @brief Declearing the number of threads and blocks along with the padding points
-    std::size_t block_dim[3]  = {128,128,128};
-    std::size_t grid_dim[3]   = {4,4,4};
+    std::size_t block_dim[3]  = {518,518,518};
+    std::size_t grid_dim[3]   = {1,1,1};
     std::size_t pad_dim[3]    = {1,1,1};
     //std::cout << block_dim[1] << " " << std::endl;
 
