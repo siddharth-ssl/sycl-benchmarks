@@ -2,8 +2,8 @@
 #include <iostream>
 #include <vector>
 
-template<typename T, std::size_t D>
-class block
+template<class M, typename T, std::size_t D>
+class matrix_block
 {
 protected:
     /* cuda block data */
@@ -14,6 +14,9 @@ protected:
     std::size_t m_min_index_padded[D];
     std::size_t m_max_index[D];
     std::size_t m_max_index_padded[D];
+    std::size_t m_num_mems;
+    std::size_t m_num_grps;
+    std::size_t m_num_vars;
     
     // std::size_t m_size;
     // std::size_t m_size_padded; 
@@ -22,9 +25,9 @@ protected:
     T* m_data;
 
 public:
-    block ();
+    matrix_block ();
     
-    block (std::size_t* t_block_size, 
+    matrix_block (std::size_t* t_block_size, 
            std::size_t* t_pad_size);
     
     std::vector<std::size_t> 
@@ -40,7 +43,7 @@ public:
     get_zone_max();
 
     std::size_t 
-    tindx  (std::size_t x, std::size_t y, std::size_t z);
+    tindx  (std::size_t m, std::size_t g, std::size_t x, std::size_t y, std::size_t z);
 
     // __device__ inline std::size_t 
     // bidx (std::size_t bx, std::size_t by, std::size_t bz);
@@ -51,22 +54,22 @@ public:
     allocate();
 
     void 
-    fill_boundary_px(const block<T,D> &t_block);
+    fill_boundary_px(const matrix_block<M,T,D> &t_block);
 
     void 
-    fill_boundary_py(const block<T,D> &t_block);
+    fill_boundary_py(const matrix_block<M,T,D> &t_block);
 
     void 
-    fill_boundary_pz(const block<T,D> &t_block);
+    fill_boundary_pz(const matrix_block<M,T,D> &t_block);
 
     void 
-    fill_boundary_mx(const block<T,D> &t_block);
+    fill_boundary_mx(const matrix_block<M,T,D> &t_block);
 
     void 
-    fill_boundary_my(const block<T,D> &t_block);
+    fill_boundary_my(const matrix_block<M,T,D> &t_block);
 
     void 
-    fill_boundary_mz(const block<T,D> &t_block);
+    fill_boundary_mz(const matrix_block<M,T,D> &t_block);
 
     void 
     fill(const T &t_val);
@@ -84,10 +87,10 @@ public:
     operator[] (std::size_t idx);
 
     const T& 
-    operator() (std::size_t i, std::size_t j, std::size_t k) const;
+    operator() (std::size_t m, std::size_t g, std::size_t i, std::size_t j, std::size_t k) const;
     
     T& 
-    operator() (std::size_t i, std::size_t j, std::size_t k);
+    operator() (std::size_t m, std::size_t g, std::size_t i, std::size_t j, std::size_t k);
 
     std::pair<std::size_t, std::size_t> 
     size_of();
@@ -107,5 +110,5 @@ public:
     std::vector<std::size_t> 
     get_nn_blocks();
     
-    ~block ();
+    ~matrix_block ();
 };
