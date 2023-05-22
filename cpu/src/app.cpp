@@ -7,9 +7,9 @@
 #include <grid.hpp>
 
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
-operations_cpu (grid<block<T,D>,T,D>& cgrid1, grid<block<T,D>,T,D>& cgrid2)
+operations_cpu (grid<matrix_block<M,T,D>,T,D>& cgrid1, grid<matrix_block<M,T,D>,T,D>& cgrid2)
 {
     for (auto bpair : cgrid1.get_blocks())
     {
@@ -34,10 +34,16 @@ operations_cpu (grid<block<T,D>,T,D>& cgrid1, grid<block<T,D>,T,D>& cgrid2)
             {
                 for(std::size_t i=zmin[0]; i<=zmax[0]; i++)
                 {
-                    auto t_a = t_block1(i,j,k);
-                    auto t_b = t_block2(i,j,k);
+		    for(std::size_t g=0; g<t_block1.lb_model().num_grps; g++)
+		    {
+			for(std::size_t m=0; m<t_block1.lb_model().num_mems; m++)
+			{
+                           auto t_a = t_block1(m,g,i,j,k);
+                           auto t_b = t_block2(m,g,i,j,k);
 
-                    t_block1(i,j,k) = exp(-(t_a + t_a*t_b -t_b*t_b)/(t_a*t_a));
+                           t_block1(m,g,i,j,k) = exp(-(t_a + t_a*t_b -t_b*t_b)/(t_a*t_a));
+			}
+		    }
                 }
             }
         }
@@ -51,14 +57,14 @@ int main(int argc, char** argv)
 {
     std::size_t itr = 100;
     /// @brief Declearing the number of threads and blocks along with the padding points
-    std::size_t block_dim[3]  = {128,128,128};
+    std::size_t block_dim[3]  = {8,8,8};
     std::size_t grid_dim[3]   = {4,4,4};
     std::size_t pad_dim[3]    = {1,1,1};
     //std::cout << block_dim[1] << " " << std::endl;
 
     /// @brief Declear the grids 
-    grid<block<double,3>,double,3> cuda_grid_1(block_dim, grid_dim, pad_dim);
-    grid<block<double,3>,double,3> cuda_grid_2(block_dim, grid_dim, pad_dim);
+    grid<matrix_block<D3Q27SC<double>,double,3>,double,3> cuda_grid_1(block_dim, grid_dim, pad_dim);
+    grid<matrix_block<D3Q27SC<double>,double,3>,double,3> cuda_grid_2(block_dim, grid_dim, pad_dim);
     //grid<double,3>* ptr_grid = new grid<double,3>(block_dim, grid_dim, pad_dim);
     
     /// @brief Allocating the memory sizes for the grids
@@ -80,7 +86,7 @@ int main(int argc, char** argv)
     cuda_grid_1.communic_nn_blocks();
     cuda_grid_2.communic_nn_blocks();
 
-    std::cout << "filling done" << " " << cuda_grid_1.at(0)(1,2,3) << " "  << cuda_grid_1.at(4).get_nn_blocks()[1] << std::endl;
+    std::cout << "filling done" << cuda_grid_1.at(0)(3,2,1,2,3) << " "  << cuda_grid_1.at(4).get_nn_blocks()[1] << std::endl;
     std::cout << " pxnn block " << cuda_grid_1.at(4).get_nn_blocks()[0] << std::endl;
     std::cout << " mxnn block " << cuda_grid_1.at(4).get_nn_blocks()[1] << std::endl;
     std::cout << " pynn block " << cuda_grid_1.at(4).get_nn_blocks()[2] << std::endl;
@@ -104,7 +110,7 @@ int main(int argc, char** argv)
     auto stop_cputime = std::chrono::high_resolution_clock::now();
     auto duration_cputime = std::chrono::duration_cast<std::chrono::microseconds>(stop_cputime - start_cputime);
 
-    std::cout << "The resuls = " <<  cuda_grid_1.at(0,0,0)(1,2,3) << " in a time of " << duration_cputime.count()/(1e6*itr) << "sec" << std::endl;
+    std::cout << "The resuls = " <<  cuda_grid_1.at(0,0,0)(3,2,1,2,3) << " in a time of " << duration_cputime.count()/(1e6*itr) << "sec" << std::endl;
 
     for(auto bpair : cuda_grid_1.get_blocks())
     {

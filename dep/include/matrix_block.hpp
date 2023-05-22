@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "D3Q27SC.hpp"
 #include <vector>
 
 template<class M, typename T, std::size_t D>
@@ -23,6 +24,7 @@ protected:
     std::size_t m_bidx;
     std::vector<std::size_t> m_nn_list = std::vector<std::size_t>(6);
     T* m_data;
+    M  m_lb_stencil;
 
 public:
     matrix_block ();
@@ -42,8 +44,8 @@ public:
     std::size_t* 
     get_zone_max();
 
-    std::size_t 
-    tindx  (std::size_t m, std::size_t g, std::size_t x, std::size_t y, std::size_t z);
+    const std::size_t 
+    tindx  (std::size_t m, std::size_t g, std::size_t x, std::size_t y, std::size_t z) const;
 
     // __device__ inline std::size_t 
     // bidx (std::size_t bx, std::size_t by, std::size_t bz);
@@ -109,6 +111,9 @@ public:
 
     std::vector<std::size_t> 
     get_nn_blocks();
+
+    M 
+    lb_model() { return m_lb_stencil ;}
     
     ~matrix_block ();
 };

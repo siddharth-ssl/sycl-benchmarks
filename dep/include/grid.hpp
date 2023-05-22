@@ -1,5 +1,6 @@
 #pragma once
 #include <block.hpp>
+#include <matrix_block.hpp>
 #include <nn_blocks.hpp>
 #include <iostream>
 #include <array>

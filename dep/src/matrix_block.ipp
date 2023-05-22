@@ -1,9 +1,9 @@
-#include <block.hpp>
+#include <matrix_block.hpp>
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 matrix_block<M,T,D>::matrix_block() {}
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 matrix_block<M,T,D>::matrix_block(std::size_t* t_block_size, 
                   std::size_t* t_pad_size) : m_data(nullptr)
 {
@@ -22,24 +22,24 @@ matrix_block<M,T,D>::matrix_block(std::size_t* t_block_size,
 
     m_num_mems             = M::num_mems;
     m_num_grps             = M::num_grps;
-    m_num_vars             = m_num_mems * m_num_vars;
+    m_num_vars             = M::num_vars;
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 std::size_t* 
 matrix_block<M,T,D>::get_zone_min()
 {
     return m_min_index;
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 std::size_t* 
 matrix_block<M,T,D>::get_zone_max()
 {
     return m_max_index;
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 std::vector<std::size_t>
 matrix_block<M,T,D>::get_block_size() const 
 {
@@ -51,7 +51,7 @@ matrix_block<M,T,D>::get_block_size() const
     return t_size;
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 std::vector<std::size_t>
 matrix_block<M,T,D>::get_block_size_padded() const 
 {
@@ -63,21 +63,21 @@ matrix_block<M,T,D>::get_block_size_padded() const
     return t_size;
 }
 
-template<typename T, std::size_t D>
-std::size_t 
-matrix_block<M,T,D>::tindx(std::size_t m, std::size_t g, std::size_t x, std::size_t y, std::size_t z)
+template<class M, typename T, std::size_t D>
+const std::size_t 
+matrix_block<M,T,D>::tindx(std::size_t m, std::size_t g, std::size_t x, std::size_t y, std::size_t z) const 
 {
     return m + m_num_mems * (x + m_block_size_padded[0]*(y + m_block_size_padded[1]*(z + m_block_size_padded[2]*g)));
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::set_bidx(const std::size_t t_bidx)
 {
     m_bidx = t_bidx;
 }
 
-template<typename T, std::size_t D> 
+template<class M, typename T, std::size_t D> 
 void 
 matrix_block<M,T,D>::set_nn_blocks(const std::vector<std::size_t>& t_nn_list)
 {
@@ -85,31 +85,32 @@ matrix_block<M,T,D>::set_nn_blocks(const std::vector<std::size_t>& t_nn_list)
     return;
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 std::size_t 
 matrix_block<M,T,D>::get_bidx()
 {
     return m_bidx;
 }
 
-template<typename T, std::size_t D> 
+template<class M, typename T, std::size_t D> 
 std::vector<std::size_t> 
 matrix_block<M,T,D>::get_nn_blocks()
 {
     return m_nn_list;
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::allocate()
 {
     std::size_t alloc_bytes = m_num_vars * m_block_size_padded[0] * m_block_size_padded[1] * m_block_size_padded[2] * sizeof(T);
+    //std::cout << m_num_vars << std::endl; 
     m_data = m_data + m_bidx * alloc_bytes;
     m_data = (T*)malloc(alloc_bytes);
     //m_data = new T[m_block_size_padded[0] * m_block_size_padded[1] * m_block_size_padded[2]];
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill_boundary_px(const matrix_block<M,T,D> &t_block)
 {
@@ -133,7 +134,7 @@ matrix_block<M,T,D>::fill_boundary_px(const matrix_block<M,T,D> &t_block)
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill_boundary_py(const matrix_block<M,T,D> &t_block)
 {
@@ -157,7 +158,7 @@ matrix_block<M,T,D>::fill_boundary_py(const matrix_block<M,T,D> &t_block)
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill_boundary_pz(const matrix_block<M,T,D> &t_block)
 {
@@ -181,7 +182,7 @@ matrix_block<M,T,D>::fill_boundary_pz(const matrix_block<M,T,D> &t_block)
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill_boundary_mx(const matrix_block<M,T,D> &t_block)
 {
@@ -205,7 +206,7 @@ matrix_block<M,T,D>::fill_boundary_mx(const matrix_block<M,T,D> &t_block)
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill_boundary_my(const matrix_block<M,T,D> &t_block)
 {
@@ -229,7 +230,7 @@ matrix_block<M,T,D>::fill_boundary_my(const matrix_block<M,T,D> &t_block)
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill_boundary_mz(const matrix_block<M,T,D> &t_block)
 {
@@ -248,11 +249,13 @@ matrix_block<M,T,D>::fill_boundary_mz(const matrix_block<M,T,D> &t_block)
                     std::size_t idx_receive = tindx(m,g,x,y,t_z_receive) ;
                     m_data[idx_receive] = t_block(m,g,x,y,t_z_send);
                     //std::cout << t_block(x,y,t_z_send) << std::endl;
+                }
+            }
         }
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill(const T &t_val)
 {
@@ -266,6 +269,7 @@ matrix_block<M,T,D>::fill(const T &t_val)
                 {
                     for(std::size_t m=0; m<m_num_mems; m++)
                     {
+                        //std::cout << m_data[tindx(m,g,x,y,z)] << std::endl;
                         m_data[tindx(m,g,x,y,z)] = t_val;
                     }
                 }
@@ -274,7 +278,7 @@ matrix_block<M,T,D>::fill(const T &t_val)
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::fill_padded(const T &t_val)
 {
@@ -296,42 +300,42 @@ matrix_block<M,T,D>::fill_padded(const T &t_val)
     }
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 T* 
 matrix_block<M,T,D>::data()
 {
     return m_data;
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 const T&
 matrix_block<M,T,D>::operator[] (std::size_t idx) const 
 {
     return m_data[idx];
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 T&
 matrix_block<M,T,D>::operator[] (std::size_t idx)
 {
     return m_data[idx];
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 const T&
 matrix_block<M,T,D>::operator() (std::size_t m, std::size_t g, std::size_t i, std::size_t j, std::size_t k) const 
 {
     return m_data[tindx(m,g,i,j,k)];
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 T&
 matrix_block<M,T,D>::operator() (std::size_t m, std::size_t g, std::size_t i, std::size_t j, std::size_t k)
 {
     return m_data[tindx(m,g,i,j,k)];
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 std::pair<std::size_t, std::size_t> 
 matrix_block<M,T,D>::size_of()
 {
@@ -345,15 +349,15 @@ matrix_block<M,T,D>::size_of()
     return std::make_pair(size, alloc_bytes);
 }
 
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::dealloc()
 {
     //m_data = nullptr;
-    free(m_data);
+    //free(m_data);
     //delete m_data;
 }
-template<typename T, std::size_t D>
+template<class M, typename T, std::size_t D>
 matrix_block<M,T,D>::~matrix_block()
 {
     //free(m_data);

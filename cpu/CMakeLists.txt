@@ -12,5 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNDEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 include_directories(${CMAKE_SOURCE_DIR}/../dep/include)
+include_directories(${CMAKE_SOURCE_DIR}/../lbm/include)
 add_subdirectory(${CMAKE_SOURCE_DIR}/../dep/ dep/lib)
+add_subdirectory(${CMAKE_SOURCE_DIR}/../lbm/ lbm/lib)
 add_subdirectory(src)
