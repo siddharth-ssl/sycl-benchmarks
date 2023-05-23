@@ -58,8 +58,8 @@ int main(int argc, char** argv)
 {
     std::size_t itr = 100;
     /// @brief Declearing the number of threads and blocks along with the padding points
-    std::size_t block_dim[3]  = {8,8,8};
-    std::size_t grid_dim[3]   = {4,4,4};
+    std::size_t block_dim[3]  = {32,32,32};
+    std::size_t grid_dim[3]   = {1,1,1};
     std::size_t pad_dim[3]    = {1,1,1};
     //std::cout << block_dim[1] << " " << std::endl;
 
@@ -87,13 +87,13 @@ int main(int argc, char** argv)
     cuda_grid_1.communic_nn_blocks();
     cuda_grid_2.communic_nn_blocks();
 
-    std::cout << "filling done" << cuda_grid_1.at(0)(3,2,1,2,3) << " "  << cuda_grid_1.at(4).get_nn_blocks()[1] << std::endl;
-    std::cout << " pxnn block " << cuda_grid_1.at(4).get_nn_blocks()[0] << std::endl;
-    std::cout << " mxnn block " << cuda_grid_1.at(4).get_nn_blocks()[1] << std::endl;
-    std::cout << " pynn block " << cuda_grid_1.at(4).get_nn_blocks()[2] << std::endl;
-    std::cout << " mynn block " << cuda_grid_1.at(4).get_nn_blocks()[3] << std::endl;
-    std::cout << " pznn block " << cuda_grid_1.at(4).get_nn_blocks()[4] << std::endl;
-    std::cout << " mznn block " << cuda_grid_1.at(4).get_nn_blocks()[5] << std::endl;
+    std::cout << "filling done " << cuda_grid_2.at(0)(3,2,1,2,3) << " "  << cuda_grid_1.at(0).get_nn_blocks()[0] << std::endl;
+    std::cout << " pxnn block " << cuda_grid_1.at(0).get_nn_blocks()[0] << std::endl;
+    std::cout << " mxnn block " << cuda_grid_1.at(0).get_nn_blocks()[1] << std::endl;
+    std::cout << " pynn block " << cuda_grid_1.at(0).get_nn_blocks()[2] << std::endl;
+    std::cout << " mynn block " << cuda_grid_1.at(0).get_nn_blocks()[3] << std::endl;
+    std::cout << " pznn block " << cuda_grid_1.at(0).get_nn_blocks()[4] << std::endl;
+    std::cout << " mznn block " << cuda_grid_1.at(0).get_nn_blocks()[5] << std::endl;
 
     lb_model<D3Q27SC<double>,double> m_lb_model;
     m_lb_model.collide(cuda_grid_1, 0.01);

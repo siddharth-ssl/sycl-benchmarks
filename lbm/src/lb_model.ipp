@@ -212,7 +212,7 @@ lb_model<M, T>::collide(T* f, const T beta) const
 	T mom[5];
 	fs_to_moments(f, mom);
 	moments_to_feq(mom, feq);
-    std::cout << base_type::num_vars << std::endl; 
+    //std::cout << base_type::num_vars << std::endl; 
 	for (std::size_t v = 0; v < base_type::num_vars; v++) {
 		f[v] += static_cast<T>(2.) * beta * (feq[v] - f[v]);
 	}
