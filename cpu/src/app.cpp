@@ -5,6 +5,7 @@
 #include <block.hpp>
 #include <omp.h>
 #include <grid.hpp>
+#include <lb_model.hpp>
 
 
 template<class M, typename T, std::size_t D>
@@ -94,6 +95,8 @@ int main(int argc, char** argv)
     std::cout << " pznn block " << cuda_grid_1.at(4).get_nn_blocks()[4] << std::endl;
     std::cout << " mznn block " << cuda_grid_1.at(4).get_nn_blocks()[5] << std::endl;
 
+    lb_model<D3Q27SC<double>,double> m_lb_model;
+    m_lb_model.collide(cuda_grid_1, 0.01);
 
 
     /// ----------------------------- ///

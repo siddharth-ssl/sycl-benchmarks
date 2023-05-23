@@ -4,14 +4,13 @@ template<class M, typename T>
 void
 lb_model<M, T>::copy_fs_from(const matrix_block<M, T, 3>& f,
                               T* fs,
-                              const ucoord x,
-                              const ucoord y,
-                              const ucoord z,
-                              const ucoord r) const 
+                              const std::size_t x,
+                              const std::size_t y,
+                              const std::size_t z) const 
 {
   for (std::size_t g = 0; g < base_type::num_grps; g++) {
     for (std::size_t m = 0; m < base_type::num_mems; m++) {
-      fs[m + base_type::num_mems * g] = f(m, g, x, y, z, r);
+      fs[m + base_type::num_mems * g] = f(m, g, x, y, z);
     }
   }
   return;
@@ -21,14 +20,13 @@ template<class M, typename T>
 void
 lb_model<M, T>::copy_fs_to(matrix_block<M, T, 3>& f,
                             const T* fs,
-                            const ucoord x,
-                            const ucoord y,
-                            const ucoord z,
-                            const ucoord r) const
+                            const std::size_t x,
+                            const std::size_t y,
+                            const std::size_t z) const
 {
   for (std::size_t g = 0; g < base_type::num_grps; g++) {
     for (std::size_t m = 0; m < base_type::num_mems; m++) {
-      f(m, g, x, y, z, r) = fs[m + base_type::num_mems * g];
+      f(m, g, x, y, z) = fs[m + base_type::num_mems * g];
     }
   }
   return;
@@ -59,7 +57,7 @@ lb_model<M, T>::fs_to_moments(const T* f, T* m) const
   return;
 }
 
-template <class T, int N1, int N2>
+template <typename T, int N1, int N2>
 void 
 gauss_elimination(T (&A)[N1][N2], 
                   T (&b)[N1], 
@@ -214,6 +212,7 @@ lb_model<M, T>::collide(T* f, const T beta) const
 	T mom[5];
 	fs_to_moments(f, mom);
 	moments_to_feq(mom, feq);
+    std::cout << base_type::num_vars << std::endl; 
 	for (std::size_t v = 0; v < base_type::num_vars; v++) {
 		f[v] += static_cast<T>(2.) * beta * (feq[v] - f[v]);
 	}
@@ -225,12 +224,15 @@ void
 lb_model<M, T>::collide(matrix_block<M, T, 3>& b, const T beta) const
 {
 	T tmp_f[base_type::num_vars];
-	const auto zone = ubox<3>(b.min(), b.max());
-	for (std::size_t r = 0; r < base_type::num_replicas; r++)
-		for (auto x = zone.min(); zone.contains(x); zone.next(x)) {
-			copy_fs_from(b, tmp_f, x, r);
+	const auto zmin = b.get_zone_min();
+    const auto zmax = b.get_zone_max();
+    
+	for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
+			copy_fs_from(b, tmp_f, x, y, z);
 			collide(tmp_f, beta);
-			copy_fs_to(b, tmp_f, x, r);
+			copy_fs_to(b, tmp_f, x, y, z);
 		}
 	return;
 }
@@ -239,88 +241,77 @@ template<class M, typename T>
 void
 lb_model<M, T>::collide(grid_type& g, const T beta) const
 {
-	std::vector<std::size_t> selected_bidx;
-	for (auto& bpair : g.bindices_blocks()) {
+	for (auto& bpair : g.get_blocks()) {
 		auto& b = bpair.second;
-		if (!b.empty()) {
-			selected_bidx.push_back(bpair.first);
-		}
-	}
-#pragma omp parallel for schedule(dynamic,1)
-	for (std::size_t i = 0; i < selected_bidx.size(); i++) {
-		const auto bidx = selected_bidx[i];
-		auto& b = g[bidx];
-		if (!b.empty()) {
-			collide(b, beta);
-		}
+		collide(b, beta);
 	}
 	return;
 }
 
 template <class M, typename T>
-void lb_model<M, T>::advect(matrix_block<M, T, D>& f) const
+void lb_model<M, T>::advect(matrix_block<M, T, 3>& f) const
 {
     const auto zmin = f.get_zone_min();
     const auto zmax = f.get_zone_max();
-    
-    for (std::size_t z = f.min(2); z <= f.max(2); z++)
-      for (std::size_t y = f.min(1); y <= f.max(1); y++)
-        for (std::size_t x = f.min(0); x <= f.max(0); x++) {
+
+    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
           f(0, 2, x, y, z) = f(0, 2, x, y, z); // f(m,g,x,y,z)
           f(1, 2, x, y, z) = f(1, 2, x + 1, y, z);
           f(2, 2, x, y, z) = f(2, 2, x, y + 1, z);
           f(3, 2, x, y, z) = f(3, 2, x, y, z + 1);
         }
-    for (std::size_t z = f.min(2); z <= f.max(2); z++)
-      for (std::size_t y = f.min(1); y <= f.max(1); y++)
-        for (std::size_t x = f.min(0); x <= f.max(0); x++) {
+    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
           f(0, 1, x, y, z) = f(0, 1, x + 1, y + 1, z + 1);
           f(1, 1, x, y, z) = f(1, 1, x - 1, y + 1, z + 1);
           f(2, 1, x, y, z) = f(2, 1, x + 1, y - 1, z + 1);
           f(3, 1, x, y, z) = f(3, 1, x - 1, y - 1, z + 1);
         }
-    for (std::size_t z = f.min(2); z <= f.max(2); z++)
-      for (std::size_t y = f.min(1); y <= f.max(1); y++)
-        for (std::size_t x = f.min(0); x <= f.max(0); x++) {
+    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
           f(2, 5, x, y, z) = f(2, 5, x + 1, y + 1, z);
           f(3, 5, x, y, z) = f(3, 5, x - 1, y + 1, z);
         }
-    for (std::size_t z = f.min(2); z <= f.max(2); z++)
-      for (std::size_t y = f.min(1); y <= f.max(1); y++)
-        for (std::size_t x = f.min(0); x <= f.max(0); x++) {
+    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
           f(0, 6, x, y, z) = f(0, 6, x + 1, y, z + 1);
           f(1, 6, x, y, z) = f(1, 6, x - 1, y, z + 1);
           f(2, 6, x, y, z) = f(2, 6, x, y + 1, z + 1);
           f(3, 6, x, y, z) = f(3, 6, x, y - 1, z + 1);
         }
 
-    for (std::size_t z = f.max(2); z >= f.min(2); z--)
-      for (std::size_t y = f.max(1); y >= f.min(1); y--)
-        for (std::size_t x = f.max(0); x >= f.min(0); x--) {
+    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
           f(0, 0, x, y, z) = f(0, 0, x, y, z);
           f(1, 0, x, y, z) = f(1, 0, x - 1, y, z);
           f(2, 0, x, y, z) = f(2, 0, x, y - 1, z);
           f(3, 0, x, y, z) = f(3, 0, x, y, z - 1);
         }
-    for (std::size_t z = f.max(2); z >= f.min(2); z--)
-      for (std::size_t y = f.max(1); y >= f.min(1); y--)
-        for (std::size_t x = f.max(0); x >= f.min(0); x--) {
+    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
           f(0, 3, x, y, z) = f(0, 3, x + 1, y + 1, z - 1);
           f(1, 3, x, y, z) = f(1, 3, x - 1, y + 1, z - 1);
           f(2, 3, x, y, z) = f(2, 3, x + 1, y - 1, z - 1);
           f(3, 3, x, y, z) = f(3, 3, x - 1, y - 1, z - 1);
         }
-    for (std::size_t z = f.max(2); z >= f.min(2); z--)
-      for (std::size_t y = f.max(1); y >= f.min(1); y--)
-        for (std::size_t x = f.max(0); x >= f.min(0); x--) {
+    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
           f(0, 4, x, y, z) = f(0, 4, x - 1, y - 1, z);
           f(1, 4, x, y, z) = f(1, 4, x + 1, y - 1, z);
           f(2, 4, x, y, z) = f(2, 4, x - 1, y, z - 1);
           f(3, 4, x, y, z) = f(3, 4, x + 1, y, z - 1);
         }
-    for (std::size_t z = f.max(2); z >= f.min(2); z--)
-      for (std::size_t y = f.max(1); y >= f.min(1); y--)
-        for (std::size_t x = f.max(0); x >= f.min(0); x--) {
+    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
           f(0, 5, x, y, z) = f(0, 5, x, y - 1, z - 1);
           f(1, 5, x, y, z) = f(1, 5, x, y + 1, z - 1);
         }
@@ -333,12 +324,10 @@ void lb_model<M, T>::advect(matrix_block<M, T, D>& f) const
 template <class M, typename T>
 void lb_model<M, T>::advect(grid_type& g) const
 {
-	for (auto& bpair : g.bindices_blocks()) {
+	for (auto& bpair : g.get_blocks()) {
 		const auto bidx = bpair.first;
 		auto& b = bpair.second;
-		if (!b.empty()) {
-			advect(b);
-		}
+		advect(b);
 	}
 	return;
 }

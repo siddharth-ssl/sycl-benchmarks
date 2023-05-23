@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include "D3Q27SC.hpp"
 #include <iostream>
 #include <grid.hpp>
@@ -11,7 +12,7 @@ public:
   using base_type = M; //D3Q27SC<T>;
   using grid_type = grid<matrix_block<base_type,T,3>, T, 3>;
 
-  lb_model() 
+  lb_model() : D3Q27SC<T>()
   {
     m_c.resize(base_type::num_vars);
     for (std::size_t v = 0; v < base_type::num_vars; v++) {
@@ -95,19 +96,17 @@ public:
   c4(const std::size_t t_m, const std::size_t t_g) const
   { return m_c4[t_m + base_type::num_mems * t_g]; }
 
-  void copy_fs_from(const matrix_tgrid<T, 3>& f,
+  void copy_fs_from(const matrix_block<M, T, 3>& f,
                     T* fs,
                     const std::size_t x,
                     const std::size_t y,
-                    const std::size_t z,
-                    const std::size_t r = 0) const;
+                    const std::size_t z) const;
 
-  void copy_fs_to(matrix_tgrid<T, 3>& f,
+  void copy_fs_to(matrix_block<M, T, 3>& f,
                   const T* fs,
                   const std::size_t x,
                   const std::size_t y,
-                  const std::size_t z,
-                  const std::size_t r = 0) const;
+                  const std::size_t z) const;
   
   void fs_to_moments(const T* f, T* m) const;
   
@@ -160,3 +159,9 @@ public:
   base_type stencil;
 
 };
+
+template <typename T, int N1, int N2>
+void 
+gauss_elimination(T (&A)[N1][N2], 
+                  T (&b)[N1], 
+                  T (&x)[N1]);
