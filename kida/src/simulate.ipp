@@ -69,7 +69,7 @@ simulate<M,T,D>::initialize_kida()
     }
     g->communic_nn_blocks();
     m_ke =  0.5*t_ke/(m_U0*m_U0);
-    std::cout << "kida KE " << m_ke << std::endl;
+    //std::cout << "kida KE " << m_ke << std::endl;
 }
 
 template<class M, typename T, std::size_t D>
@@ -107,5 +107,13 @@ simulate<M,T,D>::ke()
 
 template<class M, typename T, std::size_t D>
 void 
-simulate<M,T,D>::time_step()
-{}
+simulate<M,T,D>::time_step(const T& t_dt)
+{
+    T t_tauN = m_tau0/t_dt;
+    T t_beta = 1.0 / (1.0 + 2.0 * t_tauN);
+    m_lb_model->collide((*g), t_beta);
+    g->communic_nn_blocks();
+    m_lb_model->advect((*g));
+    g->communic_nn_blocks();
+    //sslabs::copy_margins_to_sc_nn_pads((*g), t_comm);
+}

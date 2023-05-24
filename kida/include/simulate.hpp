@@ -15,6 +15,8 @@ private:
     using grid_type  = grid<block_type,T,D>;
     
     T m_U0;
+    T m_tau0;
+    T m_nu;
     T m_ke;
     lb_model<M,T>* m_lb_model;
     grid_type* g;
@@ -28,12 +30,14 @@ public:
         g          = new grid_type(t_block_dim, t_grid_dim, t_pad_dim);
         
         g->allocate();
-        m_U0 = 1.0;
-        m_ke = 0.0; 
+        m_U0   = 0.1 * std::sqrt(5.0 * M::T0/3.0);
+        m_nu   = (m_U0 * 1.0)/1000.0;
+        m_tau0 = m_nu/M::T0;
+        m_ke   = 0.0; 
     }
 
     void 
-    time_step();
+    time_step(const T& t_dt);
 
     void 
     initialize_kida();

@@ -60,11 +60,17 @@ int main(int argc, char** argv)
     std::size_t block_dim[3]  = {32,32,32};
     std::size_t grid_dim[3]   = {1,1,1};
     std::size_t pad_dim[3]    = {1,1,1};
+    double m_dt = 2.0*M_PI/(block_dim[0]*grid_dim[0]);
     //std::cout << block_dim[1] << " " << std::endl;
 
     simulate<D3Q27SC<double>,double,3> solver(block_dim, grid_dim, pad_dim);
     solver.initialize_kida();
     std::cout << "KIDA KE " << solver.ke()/(32*32*32) << std::endl;
+    for(std::size_t it=1; it<=100; it++)
+    {
+      solver.time_step(m_dt);
+      std::cout << "KIDA KE " << solver.ke()/(32*32*32) << std::endl;
+    }
 
     /// @brief Declear the grids 
     grid<matrix_block<D3Q27SC<double>,double,3>,double,3> cuda_grid_1(block_dim, grid_dim, pad_dim);
