@@ -22,6 +22,7 @@ protected:
     // std::size_t m_size;
     // std::size_t m_size_padded; 
     std::size_t m_bidx;
+    std::vector<std::size_t> m_btks    = std::vector<std::size_t>(D);
     std::vector<std::size_t> m_nn_list = std::vector<std::size_t>(6);
     T* m_data;
     M  m_lb_stencil;
@@ -102,6 +103,14 @@ public:
 
     void 
     set_bidx(const std::size_t t_bidx);
+
+    void 
+    set_btks(const std::size_t t_bx,
+	     const std::size_t t_by,
+	     const std::size_t t_bz);
+
+    std::vector<std::size_t>
+    get_btks();
 
     void 
     set_nn_blocks(const std::vector<std::size_t>& t_nn_list);

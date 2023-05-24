@@ -77,6 +77,24 @@ matrix_block<M,T,D>::set_bidx(const std::size_t t_bidx)
     m_bidx = t_bidx;
 }
 
+template<class M, typename T, std::size_t D>
+void 
+matrix_block<M,T,D>::set_btks(const std::size_t t_bx,
+		              const std::size_t t_by,
+			      const std::size_t t_bz)
+{
+    m_btks[0] = t_bx;
+    m_btks[1] = t_by;
+    m_btks[2] = t_bz;
+}
+
+template<class M, typename T, std::size_t D>
+std::vector<std::size_t> 
+matrix_block<M,T,D>::get_btks()
+{
+    return m_btks;
+}	
+
 template<class M, typename T, std::size_t D> 
 void 
 matrix_block<M,T,D>::set_nn_blocks(const std::vector<std::size_t>& t_nn_list)

@@ -38,6 +38,7 @@ grid<block,T,D>::allocate()
                 const auto& t_bindx = bindx(bx, by, bz);
                 //block t_b = block(t_block_size, t_pad_size);
                 m_block.set_bidx(t_bindx);
+		m_block.set_btks(bx, by, bz);
 
                 const auto& t_bx = bx;
                 const auto& t_by = by;
