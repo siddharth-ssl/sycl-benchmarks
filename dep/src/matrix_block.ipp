@@ -71,6 +71,14 @@ matrix_block<M,T,D>::tindx(std::size_t m, std::size_t g, std::size_t x, std::siz
 }
 
 template<class M, typename T, std::size_t D>
+const std::size_t 
+matrix_block<M,T,D>::tindx(std::size_t dv, std::size_t x, std::size_t y, std::size_t z) const 
+{
+    //return dv + (m_num_vars) * (x + m_block_size_padded[0]*(y + m_block_size_padded[1]*z));
+    return x + m_block_size_padded[0]*(y + m_block_size_padded[1]*(z + m_block_size_padded[2]*dv));
+}
+
+template<class M, typename T, std::size_t D>
 void 
 matrix_block<M,T,D>::set_bidx(const std::size_t t_bidx)
 {
@@ -351,6 +359,20 @@ T&
 matrix_block<M,T,D>::operator() (std::size_t m, std::size_t g, std::size_t i, std::size_t j, std::size_t k)
 {
     return m_data[tindx(m,g,i,j,k)];
+}
+
+template<class M, typename T, std::size_t D>
+const T&
+matrix_block<M,T,D>::operator() (std::size_t dv, std::size_t i, std::size_t j, std::size_t k) const 
+{
+    return m_data[tindx(dv,i,j,k)];
+}
+
+template<class M, typename T, std::size_t D>
+T&
+matrix_block<M,T,D>::operator() (std::size_t dv, std::size_t i, std::size_t j, std::size_t k)
+{
+    return m_data[tindx(dv,i,j,k)];
 }
 
 template<class M, typename T, std::size_t D>

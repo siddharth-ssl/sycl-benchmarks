@@ -12,9 +12,9 @@ int main(int argc, char** argv)
 {
     std::size_t itr = 100;
     /// @brief Declearing the number of threads and blocks along with the padding points
-    std::size_t block_dim[3]  = {32,32,32};
-    std::size_t grid_dim[3]   = {4,4,4};
-    std::size_t pad_dim[3]    = {1,1,1};
+    std::size_t block_dim[3]  = {128,128,128};
+    std::size_t grid_dim[3]   = {1,1,1};
+    std::size_t pad_dim[3]    = {0,0,0};
     double m_dt = 2.0*M_PI/(block_dim[0]*grid_dim[0]);
     //std::cout << block_dim[1] << " " << std::endl;
 
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     auto start_cputime = std::chrono::high_resolution_clock::now();
     for(std::size_t it=1; it<=itr; it++)
     {
-      solver.time_step(m_dt);
+      solver.time_step(m_dt, it);
       std::cout << "KIDA KE " << solver.ke()/(32*32*32*64) << std::endl;
     }
 

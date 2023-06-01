@@ -21,58 +21,67 @@ public:
         const T WS = 2. / 27.;
         const T WF = 1. / 54.;
         const T WB = 1. / 216.;
+        
+        /*
         T tmp_w[28] = { W0, WS, WS, WS, WB, WB, WB, WB, 0., WS,
-                          WS, WS, WB, WB, WB, WB, WF, WF, WF, WF,
+                         WS, WS, WB, WB, WB, WB, WF, WF, WF, WF,
                           WF, WF, WF, WF, WF, WF, WF, WF };
-        T tmp_cx[28] = { 0., +1., 0.,  0.,  -1., +1., -1., +1., 0.,  -1.,
-                           0., 0.,  -1., +1., -1., +1., +1., -1., +1., -1.,
-                           0., 0.,  -1., +1., -1., +1., 0.,  0. };
-        T tmp_cy[28] = { 0.,  0.,  +1., 0.,  -1., -1., +1., +1., 0., 0.,
-                           -1., 0.,  -1., -1., +1., +1., +1., +1., 0., 0.,
-                           +1., -1., -1., -1., 0.,  0.,  -1., +1. };
-        T tmp_cz[28] = { 0.,  0.,  0.,  +1., -1., -1., -1., -1., 0.,  0.,
-                           0.,  -1., +1., +1., +1., +1., 0.,  0.,  +1., +1.,
-                           +1., +1., 0.,  0.,  -1., -1., -1., -1. };
+        T tmp_cx[28] = { 0., +1., 0.,  0., -1., +1., -1., +1., 0.,  -1., 0., 0., -1., +1., -1., +1., +1., -1., +1., -1.,  0., 0.,  -1., +1., -1., +1., 0.,  0. };
+        T tmp_cy[28] = { 0.,  0.,  +1., 0.,  -1., -1., +1., +1., 0., 0., -1., 0., -1., -1., +1., +1., +1., +1., 0., 0., +1., -1., -1., -1., 0.,  0.,  -1., +1. };
+        T tmp_cz[28] = { 0.,  0.,  0.,  +1., -1., -1., -1., -1., 0.,  0., 0., -1., +1., +1., +1., +1., 0.,  0.,  +1., +1., +1., +1., 0.,  0.,  -1., -1., -1., -1. };
+        
         T tmp_wm[28] = { 1., 1., 1., 1., 1., 1., 1., 1., 0., 1.,
                            1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
                            1., 1., 1., 1., 1., 1., 1., 1. };
+        */
+
+        T tmp_w[28] = { W0, WS, WS, WS, WS, WS, WS, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WB, WB, WB, WB, WB, WB, WB, WB, 0. };
+ 
+        T tmp_cx[28] = { 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0, 1,-1, 1,-1, 1,-1,-1, 1,0}; // x
+		    T tmp_cy[28] = { 0, 0, 0, 1,-1, 0, 0, 1,-1, 0, 0, 1,-1,-1, 1, 0, 0, 1,-1, 1,-1, 1,-1,-1, 1, 1,-1,0}; // y
+		    T tmp_cz[28] = { 0, 0, 0, 0, 0, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0,-1, 1,-1, 1, 1,-1,-1, 1, 1,-1, 1,-1,0}; // z
+        
+        T tmp_wm[28] = { 1., 1., 1., 1., 1., 1., 1., 1., 1.,1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,1., 1., 1., 1., 1., 1., 1., 1., 0. };
         
         for (std::size_t v = 0; v < 28; v++) 
         {
             m_w[v] = tmp_w[v];
             m_cx[v] = tmp_cx[v];
+            m_wm[v] = tmp_wm[v];
             m_cy[v] = tmp_cy[v];
             m_cz[v] = tmp_cz[v];
         }
     
-        for (std::size_t v = 28; v < num_vars; v++) 
-        {
-            m_w[v] = 0;
-            m_cx[v] = 0;
-            m_cy[v] = 0;
-            m_cz[v] = 0;
-        }
+        // for (std::size_t v = 27; v < num_vars; v++) 
+        // {
+        //     m_w[v] = 0;
+        //     m_cx[v] = 0;
+        //     m_cy[v] = 0;
+        //     m_cz[v] = 0;
+        // }
 
         for (std::size_t v = 0; v < num_vars; v++) 
         {
-            if ((0 <= v and v <= 3) or (9 <= v and v <= 11) or (16 <= v and v <= 28)) 
-            {
-                m_sc_dvs.push_back(v);
-                m_wm[v] = 1.;
-                m_c2[v] =(m_cx[v]*m_cx[v] + m_cy[v]*m_cy[v] + m_cz[v]*m_cz[v]);
-            }
-            if ((4 <= v and v <= 7) or (12 <= v and v <= 15)) 
-            {
-                m_bcc_dvs.push_back(v);
-                m_wm[v] = 1.;
-                m_c2[v] =(m_cx[v]*m_cx[v] + m_cy[v]*m_cy[v] + m_cz[v]*m_cz[v]);
-            }
-            if ((8 <= v and v <= 8) or (28 <= v and v < num_vars)) 
-            {
-                m_dummy_dvs.push_back(v);
-                m_wm[v] = 0.;
-                m_c2[v] = 0.;
-            }
+            // if ((0 <= v and v <= 3) or (9 <= v and v <= 11) or (16 <= v and v <= 28)) 
+            // {
+            //     m_sc_dvs.push_back(v);
+            //     m_wm[v] = 1.;
+            //     m_c2[v] =(m_cx[v]*m_cx[v] + m_cy[v]*m_cy[v] + m_cz[v]*m_cz[v]);
+            // }
+            // if ((4 <= v and v <= 7) or (12 <= v and v <= 15)) 
+            // {
+            //     m_bcc_dvs.push_back(v);
+            //     m_wm[v] = 1.;
+            //     m_c2[v] =(m_cx[v]*m_cx[v] + m_cy[v]*m_cy[v] + m_cz[v]*m_cz[v]);
+            // }
+            // if ((8 <= v and v <= 8) or (28 <= v and v < num_vars)) 
+            // {
+            //     m_dummy_dvs.push_back(v);
+            //     m_wm[v] = 0.;
+            //     m_c2[v] = 0.;
+            // }
+
+            m_c2[v] =(m_cx[v]*m_cx[v] + m_cy[v]*m_cy[v] + m_cz[v]*m_cz[v]);
         }
         FINE_REFILL_NODE0_FROM = std::array<std::size_t,2>({  1, 100});
         FINE_REFILL_NODE1_FROM = std::array<std::size_t,2>({  3, 100});

@@ -107,13 +107,14 @@ simulate<M,T,D>::ke()
 
 template<class M, typename T, std::size_t D>
 void 
-simulate<M,T,D>::time_step(const T& t_dt)
+simulate<M,T,D>::time_step(const T& t_dt, const std::size_t& it)
 {
     T t_tauN = m_tau0/t_dt;
     T t_beta = 1.0 / (1.0 + 2.0 * t_tauN);
-    m_lb_model->collide((*g), t_beta);
-    g->communic_nn_blocks();
-    m_lb_model->advect((*g));
+    //g->communic_nn_blocks();
+    m_lb_model->collide((*g), t_beta, it);
+    //g->communic_nn_blocks();
+    //m_lb_model->advect((*g));
     g->communic_nn_blocks();
     //sslabs::copy_margins_to_sc_nn_pads((*g), t_comm);
 }

@@ -16,6 +16,37 @@ lb_model<M, T>::copy_fs_from(const matrix_block<M, T, 3>& f,
   return;
 }
 
+
+template<class M, typename T>
+void
+lb_model<M, T>::copy_fs_from(const matrix_block<M, T, 3>& f,
+                              T* fs,
+                              const std::size_t x,
+                              const std::size_t y,
+                              const std::size_t z,
+                              const std::size_t& it) const 
+{
+  //std::cout << it << std::endl;
+  fs[0] = f(0,x,y,z);
+  for (std::size_t dv = 1; dv < base_type::num_vars-1; dv+=2) {
+      /*
+      if(it%2 == 0)
+      {
+        std::cout << dv << std::endl;
+      }
+      else
+      {
+        std::cout << dv + 1 << std::endl; 
+      }
+      */
+      //std::cout << (it%2 ? dv : dv + 1) << std::endl;
+      fs[dv]     = f(it%2 ? dv : dv + 1, x, y, z);
+      fs[dv + 1] = f(it%2 ? dv + 1 : dv, x + M::cx(dv), y + M::cy(dv), z + M::cz(dv));
+    }
+  return;
+}
+
+
 template<class M, typename T>
 void
 lb_model<M, T>::copy_fs_to(matrix_block<M, T, 3>& f,
@@ -29,6 +60,23 @@ lb_model<M, T>::copy_fs_to(matrix_block<M, T, 3>& f,
       f(m, g, x, y, z) = fs[m + base_type::num_mems * g];
     }
   }
+  return;
+}
+
+template<class M, typename T>
+void
+lb_model<M, T>::copy_fs_to(matrix_block<M, T, 3>& f,
+                              const T* fs,
+                              const std::size_t x,
+                              const std::size_t y,
+                              const std::size_t z,
+                              const std::size_t& it) const 
+{
+  f(0,x,y,z) = fs[0];
+  for (std::size_t dv = 1; dv < base_type::num_vars-1; dv+=2) {
+      f(it%2 ? dv + 1 : dv, x + M::cx(dv), y + M::cy(dv), z + M::cz(dv)) = fs[dv];  
+      f(it%2 ? dv : dv + 1, x, y, z)                                     = fs[dv + 1];
+    }
   return;
 }
 
@@ -212,38 +260,43 @@ lb_model<M, T>::collide(T* f, const T beta) const
 	T mom[5];
 	fs_to_moments(f, mom);
 	moments_to_feq(mom, feq);
-    //std::cout << base_type::num_vars << std::endl; 
+  //std::cout << mom[0] << std::endl; 
+  //std::cout << base_type::num_vars << std::endl; 
+  
 	for (std::size_t v = 0; v < base_type::num_vars; v++) {
 		f[v] += static_cast<T>(2.) * beta * (feq[v] - f[v]);
 	}
+  
 	return;
 }
 
 template<class M, typename T>
 void
-lb_model<M, T>::collide(matrix_block<M, T, 3>& b, const T beta) const
+lb_model<M, T>::collide(matrix_block<M, T, 3>& b, const T beta, const std::size_t& it) const
 {
 	T tmp_f[base_type::num_vars];
+  //T tmp_f2[base_type::num_vars];
 	const auto zmin = b.get_zone_min();
     const auto zmax = b.get_zone_max();
     
 	for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
       for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
         for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
-			copy_fs_from(b, tmp_f, x, y, z);
-			collide(tmp_f, beta);
-			copy_fs_to(b, tmp_f, x, y, z);
+			copy_fs_from(b, tmp_f, x, y, z, it);
+      //copy_fs_from(b, tmp_f2, x, y, z);
+		  collide(tmp_f, beta);
+			copy_fs_to(b, tmp_f, x, y, z, it);
 		}
 	return;
 }
 
 template<class M, typename T>
 void
-lb_model<M, T>::collide(grid_type& g, const T beta) const
+lb_model<M, T>::collide(grid_type& g, const T beta, const std::size_t& it) const
 {
 	for (auto& bpair : g.get_blocks()) {
 		auto& b = bpair.second;
-		collide(b, beta);
+		collide(b, beta, it);
 	}
 	return;
 }

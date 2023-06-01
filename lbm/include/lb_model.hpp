@@ -102,11 +102,25 @@ public:
                     const std::size_t y,
                     const std::size_t z) const;
 
+  void copy_fs_from(const matrix_block<M, T, 3>& f,
+                              T* fs,
+                              const std::size_t x,
+                              const std::size_t y,
+                              const std::size_t z,
+                              const std::size_t& it) const;
+
   void copy_fs_to(matrix_block<M, T, 3>& f,
                   const T* fs,
                   const std::size_t x,
                   const std::size_t y,
                   const std::size_t z) const;
+
+  void copy_fs_to(matrix_block<M, T, 3>& f,
+                              const T* fs,
+                              const std::size_t x,
+                              const std::size_t y,
+                              const std::size_t z,
+                              const std::size_t& it) const;
   
   void fs_to_moments(const T* f, T* m) const;
   
@@ -129,10 +143,10 @@ void
 collide(T* f, const T beta) const;
 
 void
-collide(matrix_block<base_type, T, 3>& b, const T beta) const;
+collide(matrix_block<base_type, T, 3>& b, const T beta, const std::size_t& it) const;
 
 void
-collide(grid_type& g, const T beta) const;
+collide(grid_type& g, const T beta, const std::size_t& it) const;
 
 void
 advect(matrix_block<base_type, T, 3>& b) const;

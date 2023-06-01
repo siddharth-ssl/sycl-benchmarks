@@ -48,6 +48,9 @@ public:
     const std::size_t 
     tindx  (std::size_t m, std::size_t g, std::size_t x, std::size_t y, std::size_t z) const;
 
+    const std::size_t 
+    tindx  (std::size_t dv, std::size_t x, std::size_t y, std::size_t z) const;
+
     // __device__ inline std::size_t 
     // bidx (std::size_t bx, std::size_t by, std::size_t bz);
 
@@ -94,6 +97,12 @@ public:
     
     T& 
     operator() (std::size_t m, std::size_t g, std::size_t i, std::size_t j, std::size_t k);
+
+    const T& 
+    operator() (std::size_t dv, std::size_t i, std::size_t j, std::size_t k) const;
+    
+    T& 
+    operator() (std::size_t dv, std::size_t i, std::size_t j, std::size_t k);
 
     std::pair<std::size_t, std::size_t> 
     size_of();
