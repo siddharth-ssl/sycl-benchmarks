@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     /// @brief Declearing the number of threads and blocks along with the padding points
     std::size_t block_dim[3]  = {128,128,128};
     std::size_t grid_dim[3]   = {1,1,1};
-    std::size_t pad_dim[3]    = {0,0,0};
+    std::size_t pad_dim[3]    = {1,1,1};
     double m_dt = 2.0*M_PI/(block_dim[0]*grid_dim[0]);
     //std::cout << block_dim[1] << " " << std::endl;
 

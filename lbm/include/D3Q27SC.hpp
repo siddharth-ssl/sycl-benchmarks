@@ -9,8 +9,8 @@ class D3Q27SC
 public:
     static const std::size_t Q = 27;
     static const std::size_t num_replicas = 1;
-    static constexpr std::size_t num_grps = (sizeof(T) == 4 ? 4 : 7);
-    static constexpr std::size_t num_mems = (sizeof(T) == 4 ? 8 : 4);
+    static constexpr std::size_t num_grps = 7;//(sizeof(T) == 4 ? 4 : 7);
+    static constexpr std::size_t num_mems = 4;//(sizeof(T) == 4 ? 8 : 4);
     static const std::size_t num_vars = num_mems * num_grps;
     static const std::size_t cmax = 1;
     static constexpr T T0 = 1. / 3.;
@@ -22,7 +22,6 @@ public:
         const T WF = 1. / 54.;
         const T WB = 1. / 216.;
         
-        /*
         T tmp_w[28] = { W0, WS, WS, WS, WB, WB, WB, WB, 0., WS,
                          WS, WS, WB, WB, WB, WB, WF, WF, WF, WF,
                           WF, WF, WF, WF, WF, WF, WF, WF };
@@ -33,15 +32,14 @@ public:
         T tmp_wm[28] = { 1., 1., 1., 1., 1., 1., 1., 1., 0., 1.,
                            1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
                            1., 1., 1., 1., 1., 1., 1., 1. };
-        */
 
-        T tmp_w[28] = { W0, WS, WS, WS, WS, WS, WS, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WB, WB, WB, WB, WB, WB, WB, WB, 0. };
+        // T tmp_w[28] = { W0, WS, WS, WS, WS, WS, WS, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WF, WB, WB, WB, WB, WB, WB, WB, WB, 0. };
  
-        T tmp_cx[28] = { 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0, 1,-1, 1,-1, 1,-1,-1, 1,0}; // x
-		    T tmp_cy[28] = { 0, 0, 0, 1,-1, 0, 0, 1,-1, 0, 0, 1,-1,-1, 1, 0, 0, 1,-1, 1,-1, 1,-1,-1, 1, 1,-1,0}; // y
-		    T tmp_cz[28] = { 0, 0, 0, 0, 0, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0,-1, 1,-1, 1, 1,-1,-1, 1, 1,-1, 1,-1,0}; // z
+        // T tmp_cx[28] = { 0, 1,-1, 0, 0, 0, 0, 1,-1, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0, 1,-1, 1,-1, 1,-1,-1, 1,0}; // x
+		    // T tmp_cy[28] = { 0, 0, 0, 1,-1, 0, 0, 1,-1, 0, 0, 1,-1,-1, 1, 0, 0, 1,-1, 1,-1, 1,-1,-1, 1, 1,-1,0}; // y
+		    // T tmp_cz[28] = { 0, 0, 0, 0, 0, 1,-1, 0, 0, 1,-1, 1,-1, 0, 0,-1, 1,-1, 1, 1,-1,-1, 1, 1,-1, 1,-1,0}; // z
         
-        T tmp_wm[28] = { 1., 1., 1., 1., 1., 1., 1., 1., 1.,1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,1., 1., 1., 1., 1., 1., 1., 1., 0. };
+        // T tmp_wm[28] = { 1., 1., 1., 1., 1., 1., 1., 1., 1.,1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,1., 1., 1., 1., 1., 1., 1., 1., 0. };
         
         for (std::size_t v = 0; v < 28; v++) 
         {

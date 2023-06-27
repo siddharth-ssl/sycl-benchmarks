@@ -13,6 +13,10 @@ lb_model<M, T>::copy_fs_from(const matrix_block<M, T, 3>& f,
       fs[m + base_type::num_mems * g] = f(m, g, x, y, z);
     }
   }
+  
+  // for (std::size_t dv = 0; dv < base_type::num_vars; dv++) {
+  //   fs[dv] = f(dv, x, y, z);
+  // }
   return;
 }
 
@@ -60,6 +64,10 @@ lb_model<M, T>::copy_fs_to(matrix_block<M, T, 3>& f,
       f(m, g, x, y, z) = fs[m + base_type::num_mems * g];
     }
   }
+  
+  // for (std::size_t dv = 0; dv < base_type::num_vars; dv++) {
+  //   f(dv, x, y, z) = fs[dv];
+  // }
   return;
 }
 
@@ -282,10 +290,10 @@ lb_model<M, T>::collide(matrix_block<M, T, 3>& b, const T beta, const std::size_
 	for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
       for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
         for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
-			copy_fs_from(b, tmp_f, x, y, z, it);
+			copy_fs_from(b, tmp_f, x, y, z);
       //copy_fs_from(b, tmp_f2, x, y, z);
 		  collide(tmp_f, beta);
-			copy_fs_to(b, tmp_f, x, y, z, it);
+			copy_fs_to(b, tmp_f, x, y, z);
 		}
 	return;
 }
