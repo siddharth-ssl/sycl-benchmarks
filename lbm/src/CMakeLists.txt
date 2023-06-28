@@ -1,4 +1,4 @@
-add_library(lbm STATIC lb_model.cpp D3Q27SC.cpp)
+add_library(lbm STATIC collide_sycl.cpp lb_param_host.cpp lb_model.cpp D3Q27SC.cpp)
 set_target_properties (lbm 
   PROPERTIES
   POSITION_INDEPENDENT_CODE ON

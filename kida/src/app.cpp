@@ -5,11 +5,16 @@
 #include <grid.hpp>
 #include <lb_model.hpp>
 #include <simulate.hpp>
+#include <sycl/sycl.hpp>
+#include <dpc_common.hpp>
 
 
 
 int main(int argc, char** argv)
 {
+  sycl::property_list properties{sycl::property::queue::in_order()};
+  sycl::queue         q(sycl::default_selector_v, dpc_common::exception_handler, properties);
+    
     std::size_t itr = 100;
     /// @brief Declearing the number of threads and blocks along with the padding points
     std::size_t block_dim[3]  = {128,128,128};
@@ -18,7 +23,7 @@ int main(int argc, char** argv)
     double m_dt = 2.0*M_PI/(block_dim[0]*grid_dim[0]);
     //std::cout << block_dim[1] << " " << std::endl;
 
-    simulate<D3Q27SC<double>,double,3> solver(block_dim, grid_dim, pad_dim);
+    simulate<D3Q27SC<double>,double,3> solver(block_dim, grid_dim, pad_dim, q);
     solver.initialize_kida();
     std::cout << "KIDA KE " << solver.ke()/(32*32*32*64) << std::endl;
     
@@ -29,7 +34,7 @@ int main(int argc, char** argv)
     auto start_cputime = std::chrono::high_resolution_clock::now();
     for(std::size_t it=1; it<=itr; it++)
     {
-      solver.time_step(m_dt, it);
+      solver.time_step(m_dt, it, q);
       std::cout << "KIDA KE " << solver.ke()/(32*32*32*64) << std::endl;
     }
 

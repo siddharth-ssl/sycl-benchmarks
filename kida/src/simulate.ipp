@@ -107,12 +107,36 @@ simulate<M,T,D>::ke()
 
 template<class M, typename T, std::size_t D>
 void 
-simulate<M,T,D>::time_step(const T& t_dt, const std::size_t& it)
+simulate<M,T,D>::copy_device_to_host(sycl::queue& q)
+{
+    for(auto& bpair : (*g).get_blocks())
+    {
+        q.memcpy(bpair.second.data(), device_data, m_size).wait();
+    }
+}
+
+template<class M, typename T, std::size_t D>
+void 
+simulate<M,T,D>::copy_host_to_device(sycl::queue& q)
+{
+    for(auto& bpair : (*g).get_blocks())
+    {
+        q.memcpy(device_data, bpair.second.data(), m_size).wait();
+    }
+}
+
+
+template<class M, typename T, std::size_t D>
+void 
+simulate<M,T,D>::time_step(const T& t_dt, const std::size_t& it, sycl::queue& q)
 {
     T t_tauN = m_tau0/t_dt;
     T t_beta = 1.0 / (1.0 + 2.0 * t_tauN);
     g->communic_nn_blocks();
-    m_lb_model->collide((*g), t_beta, it);
+    //m_lb_model->collide((*g), t_beta, it);
+    copy_host_to_device(q);
+    sycl_collide->collide(it, (*g), t_beta, d_lb_param, device_data, q);
+    copy_device_to_host(q);
     g->communic_nn_blocks();
     m_lb_model->advect((*g));
     //g->communic_nn_blocks();
