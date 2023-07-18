@@ -383,9 +383,9 @@ collide_sycl<M,T,D>::collide_cuda(const std::size_t& it, block_type& b, const T 
   const auto npz  = b.get_block_size_padded()[2]; 
   const auto num_replicas = (*lb_model).m_num_replicas;
   const auto num_vars     = (*lb_model).m_num_vars; 
-  const std::size_t ntx_cuda = 2;
-  const std::size_t nty_cuda = 2;
-  const std::size_t ntz_cuda = 2; 
+  const std::size_t ntx_cuda = 8;
+  const std::size_t nty_cuda = 8;
+  const std::size_t ntz_cuda = 8; 
   const std::size_t nbx_cuda = (npx)/ntx_cuda;
   const std::size_t nby_cuda = (npy)/nty_cuda;
   const std::size_t nbz_cuda = (npz)/ntz_cuda; 
@@ -464,6 +464,7 @@ collide_sycl<M,T,D>::collide_cuda(const std::size_t& it, block_type& b, const T 
                 temp_f[v] += static_cast<T>(2.) * beta * (feq[v] - temp_f[v]);
                 // item_ct.barrier(sycl::access::fence_space::local_space);
               }
+	       
 
               copy_fs_to     (d_data, temp_f, x, y, z, r, npx, npy, npz, lb_model);
               // item_ct.barrier(sycl::access::fence_space::local_space);

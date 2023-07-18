@@ -60,7 +60,7 @@ public:
     void
     copy_host_to_device(sycl::queue& q);
 
-    void 
+    T  
     time_step(const T& t_dt, const std::size_t& it, sycl::queue& q);
 
     void 

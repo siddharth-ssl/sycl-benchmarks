@@ -309,73 +309,98 @@ lb_model<M, T>::collide(grid_type& g, const T beta, const std::size_t& it) const
 	return;
 }
 
+
+
+
+// T tmp_cx[28] = { 0., +1., 0.,  0., -1., +1., -1., +1., 0.,  -1., 0., 0., -1., +1., -1., +1., +1., -1., +1., -1.,  0., 0.,  -1., +1., -1., +1., 0.,  0. };
+// T tmp_cy[28] = { 0.,  0.,  +1., 0.,  -1., -1., +1., +1., 0., 0., -1., 0., -1., -1., +1., +1., +1., +1., 0., 0., +1., -1., -1., -1., 0.,  0.,  -1., +1. };
+// T tmp_cz[28] = { 0.,  0.,  0.,  +1., -1., -1., -1., -1., 0.,  0., 0., -1., +1., +1., +1., +1., 0.,  0.,  +1., +1., +1., +1., 0.,  0.,  -1., -1., -1., -1. };
+
+
 template <class M, typename T>
 void lb_model<M, T>::advect(matrix_block<M, T, 3>& f) const
 {
     const auto zmin = f.get_zone_min();
     const auto zmax = f.get_zone_max();
 
-    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
-      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
-        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
-          f(0, 2, x, y, z) = f(0, 2, x, y, z); // f(m,g,x,y,z)
-          f(1, 2, x, y, z) = f(1, 2, x + 1, y, z);
-          f(2, 2, x, y, z) = f(2, 2, x, y + 1, z);
-          f(3, 2, x, y, z) = f(3, 2, x, y, z + 1);
-        }
-    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
-      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
-        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
-          f(0, 1, x, y, z) = f(0, 1, x + 1, y + 1, z + 1);
-          f(1, 1, x, y, z) = f(1, 1, x - 1, y + 1, z + 1);
-          f(2, 1, x, y, z) = f(2, 1, x + 1, y - 1, z + 1);
-          f(3, 1, x, y, z) = f(3, 1, x - 1, y - 1, z + 1);
-        }
-    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
-      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
-        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
-          f(2, 5, x, y, z) = f(2, 5, x + 1, y + 1, z);
-          f(3, 5, x, y, z) = f(3, 5, x - 1, y + 1, z);
-        }
-    for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
-      for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
-        for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
-          f(0, 6, x, y, z) = f(0, 6, x + 1, y, z + 1);
-          f(1, 6, x, y, z) = f(1, 6, x - 1, y, z + 1);
-          f(2, 6, x, y, z) = f(2, 6, x, y + 1, z + 1);
-          f(3, 6, x, y, z) = f(3, 6, x, y - 1, z + 1);
-        }
+     for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+       for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+         for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
+    
+    //    f( 1, x, y, z) = f( 1, x - 1, y    , z    );
+    //    f( 2, x, y, z) = f( 2, x    , y - 1, z    );
+    //    f( 3, x, y, z) = f( 3, x    , y    , z - 1);
+    //    f(12, x, y, z) = f(12, x + 1, y + 1, z - 1);
+    //    f(13, x, y, z) = f(13, x - 1, y + 1, z - 1);
+    //    f(14, x, y, z) = f(14, x + 1, y - 1, z - 1);
+    //    f(15, x, y, z) = f(15, x - 1, y - 1, z - 1);
+    //    f(16, x, y, z) = f(16, x - 1, y - 1, z    );
+    //    f(17, x, y, z) = f(17, x + 1, y - 1, z    );
+    //    f(18, x, y, z) = f(18, x - 1, y    , z - 1);
+    //    f(19, x, y, z) = f(19, x + 1, y    , z - 1);
+    //    f(20, x, y, z) = f(20, x    , y - 1, z - 1);
+    //    f(21, x, y, z) = f(21, x    , y + 1, z - 1);
+    //  }		 
+		 
+		 
+           f(0, 2, x, y, z) = f(0, 2, x, y, z); // f(m,g,x,y,z)
+           f(1, 2, x, y, z) = f(1, 2, x + 1, y, z);
+           f(2, 2, x, y, z) = f(2, 2, x, y + 1, z);
+           f(3, 2, x, y, z) = f(3, 2, x, y, z + 1);
+         }
+     for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+       for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+         for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
+           f(0, 1, x, y, z) = f(0, 1, x + 1, y + 1, z + 1);
+           f(1, 1, x, y, z) = f(1, 1, x - 1, y + 1, z + 1);
+           f(2, 1, x, y, z) = f(2, 1, x + 1, y - 1, z + 1);
+           f(3, 1, x, y, z) = f(3, 1, x - 1, y - 1, z + 1);
+         }
+     for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+       for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+         for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
+           f(2, 5, x, y, z) = f(2, 5, x + 1, y + 1, z);
+           f(3, 5, x, y, z) = f(3, 5, x - 1, y + 1, z);
+         }
+     for (std::size_t z = zmin[2]; z <= zmax[2]; z++)
+       for (std::size_t y = zmin[1]; y <= zmax[1]; y++)
+         for (std::size_t x = zmin[0]; x <= zmax[0]; x++) {
+           f(0, 6, x, y, z) = f(0, 6, x + 1, y, z + 1);
+           f(1, 6, x, y, z) = f(1, 6, x - 1, y, z + 1);
+           f(2, 6, x, y, z) = f(2, 6, x, y + 1, z + 1);
+           f(3, 6, x, y, z) = f(3, 6, x, y - 1, z + 1);
+         }
 
-    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
-      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
-        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
-          f(0, 0, x, y, z) = f(0, 0, x, y, z);
-          f(1, 0, x, y, z) = f(1, 0, x - 1, y, z);
-          f(2, 0, x, y, z) = f(2, 0, x, y - 1, z);
-          f(3, 0, x, y, z) = f(3, 0, x, y, z - 1);
-        }
-    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
-      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
-        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
-          f(0, 3, x, y, z) = f(0, 3, x + 1, y + 1, z - 1);
-          f(1, 3, x, y, z) = f(1, 3, x - 1, y + 1, z - 1);
-          f(2, 3, x, y, z) = f(2, 3, x + 1, y - 1, z - 1);
-          f(3, 3, x, y, z) = f(3, 3, x - 1, y - 1, z - 1);
-        }
-    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
-      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
-        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
-          f(0, 4, x, y, z) = f(0, 4, x - 1, y - 1, z);
-          f(1, 4, x, y, z) = f(1, 4, x + 1, y - 1, z);
-          f(2, 4, x, y, z) = f(2, 4, x - 1, y, z - 1);
-          f(3, 4, x, y, z) = f(3, 4, x + 1, y, z - 1);
-        }
-    for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
-      for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
-        for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
-          f(0, 5, x, y, z) = f(0, 5, x, y - 1, z - 1);
-          f(1, 5, x, y, z) = f(1, 5, x, y + 1, z - 1);
-        }
+     for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+       for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+         for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
+           f(0, 0, x, y, z) = f(0, 0, x, y, z);
+           f(1, 0, x, y, z) = f(1, 0, x - 1, y, z);
+           f(2, 0, x, y, z) = f(2, 0, x, y - 1, z);
+           f(3, 0, x, y, z) = f(3, 0, x, y, z - 1);
+         }
+     for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+       for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+         for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
+           f(0, 3, x, y, z) = f(0, 3, x + 1, y + 1, z - 1);
+           f(1, 3, x, y, z) = f(1, 3, x - 1, y + 1, z - 1);
+           f(2, 3, x, y, z) = f(2, 3, x + 1, y - 1, z - 1);
+           f(3, 3, x, y, z) = f(3, 3, x - 1, y - 1, z - 1);
+         }
+     for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+       for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+         for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
+           f(0, 4, x, y, z) = f(0, 4, x - 1, y - 1, z);
+           f(1, 4, x, y, z) = f(1, 4, x + 1, y - 1, z);
+           f(2, 4, x, y, z) = f(2, 4, x - 1, y, z - 1);
+           f(3, 4, x, y, z) = f(3, 4, x + 1, y, z - 1);
+         }
+     for (std::size_t z = zmax[2]; z >= zmin[2]; z--)
+       for (std::size_t y = zmax[1]; y >= zmin[1]; y--)
+         for (std::size_t x = zmax[0]; x >= zmin[0]; x--) {
+           f(0, 5, x, y, z) = f(0, 5, x, y - 1, z - 1);
+           f(1, 5, x, y, z) = f(1, 5, x, y + 1, z - 1);
+          }
 
     return;
 }

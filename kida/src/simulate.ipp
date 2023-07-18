@@ -127,18 +127,25 @@ simulate<M,T,D>::copy_host_to_device(sycl::queue& q)
 
 
 template<class M, typename T, std::size_t D>
-void 
+T 
 simulate<M,T,D>::time_step(const T& t_dt, const std::size_t& it, sycl::queue& q)
 {
     T t_tauN = m_tau0/t_dt;
     T t_beta = 1.0 / (1.0 + 2.0 * t_tauN);
+    
     g->communic_nn_blocks();
+    
     //m_lb_model->collide((*g), t_beta, it);
     copy_host_to_device(q);
+    auto start_time = std::chrono::high_resolution_clock::now();
     sycl_collide->collide(it, (*g), t_beta, d_lb_param, device_data, q);
+    auto stop_time = std::chrono::high_resolution_clock::now();
+    auto duration_time = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
     copy_device_to_host(q);
+
     g->communic_nn_blocks();
     m_lb_model->advect((*g));
     //g->communic_nn_blocks();
     //sslabs::copy_margins_to_sc_nn_pads((*g), t_comm);
+    return duration_time.count()/1e6;
 }
